@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Scoring Tests</title>
+  <style>
+    body { font-family: monospace; background: #1a1a2e; color: #e8e8f0; padding: 2rem; }
+    .pass { color: #00c853; }
+    .fail { color: #ff1744; }
+    h1 { margin-bottom: 1rem; }
+    pre { margin: 0.25rem 0; }
+  </style>
+</head>
+<body>
+  <h1>Scoring Tests</h1>
+  <div id="output"></div>
+  <script type="module">
+    import { calculatePoints, calculateAccuracy } from "../js/scoring.js";
+
+    const output = document.getElementById("output");
+    let passed = 0;
+    let failed = 0;
+
+    function assert(name, actual, expected) {
+      const ok = JSON.stringify(actual) === JSON.stringify(expected);
+      if (ok) {
+        passed++;
+        output.innerHTML += `<pre class="pass">✓ ${name}</pre>`;
+      } else {
+        failed++;
+        output.innerHTML += `<pre class="fail">✗ ${name} — expected ${JSON.stringify(expected)}, got ${JSON.stringify(actual)}</pre>`;
+      }
+    }
+
+    // Wrong answer
+    let r = calculatePoints(false, 0, 10, 15);
+    assert("Wrong answer gives 0 points", r.points, 0);
+    assert("Wrong answer resets streak", r.newStreak, 0);
+
+    // Correct, no streak
+    r = calculatePoints(true, 0, 15, 15);
+    assert("Correct with full time gives 150 points", r.points, 150);
+    assert("Streak goes to 1", r.newStreak, 1);
+    assert("No multiplier", r.multiplier, 1);
+
+    // Correct, streak = 2 -> 3 (2x kicks in)
+    r = calculatePoints(true, 2, 15, 15);
+    assert("3-streak gives 2x multiplier", r.multiplier, 2);
+    assert("3-streak points are doubled", r.points, 300);
+
+    // Correct, streak = 4 -> 5 (3x kicks in)
+    r = calculatePoints(true, 4, 15, 15);
+    assert("5-streak gives 3x multiplier", r.multiplier, 3);
+    assert("5-streak points are tripled", r.points, 450);
+
+    // Time bonus
+    r = calculatePoints(true, 0, 0, 15);
+    assert("No time remaining gives base points only", r.points, 100);
+
+    r = calculatePoints(true, 0, 7, 15);
+    assert("Partial time gives partial bonus", r.points, 123);
+
+    // Accuracy
+    assert("Accuracy 3/5 = 60%", calculateAccuracy(3, 5), 60);
+    assert("Accuracy 0/0 = 0%", calculateAccuracy(0, 0), 0);
+    assert("Accuracy 5/5 = 100%", calculateAccuracy(5, 5), 100);
+
+    output.innerHTML += `<pre>\n${passed} passed, ${failed} failed</pre>`;
+  </script>
+</body>
+</html>

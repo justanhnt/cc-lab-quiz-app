@@ -1,0 +1,11 @@
+{
+  "name": "quiz-arena",
+  "version": "1.0.0",
+  "description": "Interactive quiz web app with timed questions, scoring, and gamification",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "dependencies": {}
+}
